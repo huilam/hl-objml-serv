@@ -17,7 +17,7 @@ import hl.restapi.service.RESTApiException;
 import hl.restapi.service.RESTServiceReq;
 import jakarta.servlet.http.HttpServletRequest;
 
-public class RestApiPlugin implements IServicePlugin{
+public class ObjMLPlugin implements IServicePlugin{
 
 	private static Object objLock = new Object();
 	private static MLPluginMgr mgr = null;
