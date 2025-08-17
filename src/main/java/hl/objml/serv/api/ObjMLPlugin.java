@@ -1,16 +1,17 @@
 package hl.objml.serv.api;
 
 import java.io.File;
-import java.util.Map;
-
+import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import hl.common.FileUtil;
 import hl.common.http.HttpResp;
+import hl.objml2.api.ObjMLApi;
 import hl.objml2.plugin.MLPluginConfigKey;
 import hl.objml2.plugin.MLPluginConfigProp;
 import hl.objml2.plugin.MLPluginMgr;
+import hl.objml2.plugin.ObjDetBasePlugin;
 import hl.opencv.util.OpenCvUtil;
 import hl.restapi.plugins.IServicePlugin;
 import hl.restapi.service.RESTApiException;
@@ -19,9 +20,9 @@ import jakarta.servlet.http.HttpServletRequest;
 
 public class ObjMLPlugin implements IServicePlugin{
 
-	private static Object objLock = new Object();
-	private static MLPluginMgr mgr = null;
-	private static Map<String, MLPluginConfigProp> mapMLPluginJavaClassName = null;
+	private static Object objLock 		= new Object();
+	private static ObjMLApi objMlApi 	= null;
+	private static List<String> listMlPluginClassName = null;
 
 	@Override
 	public HttpResp handleException(RESTServiceReq req, HttpResp res, RESTApiException ex) throws RESTApiException {
@@ -38,31 +39,70 @@ public class ObjMLPlugin implements IServicePlugin{
 		{
 			if("true".equalsIgnoreCase(httpReq.getParameter("reload")))
 			{
-				if(mgr!=null)
-				{
-					mapMLPluginJavaClassName = mgr.scanForPluginJavaClassName();
-				}
+				objMlApi.reScanPlugins();
 			}
-			else if(mapMLPluginJavaClassName==null)
-			{
-				mapMLPluginJavaClassName = mgr.scanForPluginJavaClassName();
-			}
+			
+			listMlPluginClassName = objMlApi.listPluginClassNames();
 			
 		}
 		
 		//////////////////////////////////
 		
-		if(mapMLPluginJavaClassName!=null)
+		String sAction = req.getUrlPathParam("action");
+		if(sAction==null)
+			sAction = "list";
+		
+		if("list".equalsIgnoreCase(sAction))
 		{
-			JSONArray jArrMLNames = new JSONArray();
-			for(Object objMlName : mapMLPluginJavaClassName.keySet())
+			if(listMlPluginClassName!=null)
 			{
-				jArrMLNames.put(objMlName.toString());
+				JSONArray jArrMLNames = new JSONArray();
+				for(String sMLName : listMlPluginClassName)
+				{
+					jArrMLNames.put(sMLName);
+				}
+				
+				JSONObject jsonMlNames = new JSONObject();
+				jsonMlNames.put("objmlPlugins", jArrMLNames);
+				res.setContent_data(jsonMlNames.toString());
+			}
+		}
+		else if("detail".equalsIgnoreCase(sAction))
+		{
+			JSONObject jsonInfo = new JSONObject();
+			
+			String sObjMlClassName = httpReq.getParameter("className");
+			if(sObjMlClassName!=null)
+			{
+				ObjDetBasePlugin plugin = objMlApi.initPlugin(sObjMlClassName);
+				if(plugin!=null)
+				{
+					jsonInfo.put("name", plugin.getPluginName());
+					
+					JSONObject jsonProp = new JSONObject();
+					MLPluginConfigProp prop = plugin.getPluginProps();
+					for(Object oKey : prop.keySet())
+					{
+						String sVal = (String) prop.get(oKey);
+						if("objml.mlmodel.source".equalsIgnoreCase(oKey.toString()))
+						{
+							sVal = new File(sVal).getName();
+						}
+						jsonProp.put(oKey.toString(), sVal);
+					}
+					
+					jsonInfo.put("props", jsonProp);
+					
+				}
+				
+			}
+			else
+			{
+				jsonInfo.put("error","invalid className");
 			}
 			
-			JSONObject jsonMlNames = new JSONObject();
-			jsonMlNames.put("objmlPlugins", jArrMLNames);
-			res.setContent_data(jsonMlNames.toString());
+			res.setContent_type_as_Json();
+			res.setContent_data(jsonInfo.toString());
 		}
 		
 		return res;
@@ -71,31 +111,32 @@ public class ObjMLPlugin implements IServicePlugin{
 	
 	private boolean init(RESTServiceReq req)
 	{
-		if(mgr==null)
+		if(objMlApi==null)
 		{
+			OpenCvUtil.initOpenCV();
 			synchronized (objLock) {
-				if(mgr==null)
+				if(objMlApi==null)
 				{
-					OpenCvUtil.initOpenCV();
-			    	mapMLPluginJavaClassName = null;
+			    	listMlPluginClassName = null;
 			    	
 			    	String sPluginFolder = req.getConfigMap().get("config.plugins.folder");
+			    	if(sPluginFolder==null)
+			    		sPluginFolder = ".";
+			    		
 			    	File jarFolder = new File(sPluginFolder);
 			    	File jarFiles[] = getPluginJarsPath(jarFolder);
 			    	
-			    	mgr = new MLPluginMgr();
-					mgr.setCustomPluginConfigKey(getCustomPluginConfigKey("objml-plugin.properties", "objml."));
-					mgr.addPluginPaths(jarFiles);
+			    	MLPluginMgr objmlMgr = new MLPluginMgr();
+			    	objmlMgr.setCustomPluginConfigKey(
+							getCustomPluginConfigKey("objml-plugin.properties", "objml."));
+			    	objmlMgr.addPluginPaths(jarFiles);
+			    	
+			    	objMlApi = new ObjMLApi(objmlMgr);
 				}
 			}
 		}
 		
-		if(mgr!=null && (mapMLPluginJavaClassName==null || mapMLPluginJavaClassName.size()==0))
-		{
-			mapMLPluginJavaClassName = mgr.scanForPluginJavaClassName();
-		}
-		
-		return (mgr!=null);
+		return (objMlApi!=null);
 	}
 	
 	
