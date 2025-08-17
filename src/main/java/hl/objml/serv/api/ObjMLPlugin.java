@@ -119,7 +119,7 @@ public class ObjMLPlugin implements IServicePlugin{
 				{
 			    	listMlPluginClassName = null;
 			    	
-			    	String sPluginFolder = req.getConfigMap().get("config.plugins.folder");
+			    	String sPluginFolder = req.getConfigMap().get("objml.config.plugins.folder");
 			    	if(sPluginFolder==null)
 			    		sPluginFolder = ".";
 			    		
