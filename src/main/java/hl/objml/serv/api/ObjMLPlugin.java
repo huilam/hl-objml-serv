@@ -5,14 +5,10 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import hl.common.FileUtil;
 import hl.common.http.HttpResp;
-import hl.objml2.api.ObjMLApi;
-import hl.objml2.plugin.MLPluginConfigKey;
+import hl.objml.serv.ObjMLServApi;
 import hl.objml2.plugin.MLPluginConfigProp;
-import hl.objml2.plugin.MLPluginMgr;
 import hl.objml2.plugin.ObjDetBasePlugin;
-import hl.opencv.util.OpenCvUtil;
 import hl.restapi.plugins.IServicePlugin;
 import hl.restapi.service.RESTApiException;
 import hl.restapi.service.RESTServiceReq;
@@ -20,9 +16,8 @@ import jakarta.servlet.http.HttpServletRequest;
 
 public class ObjMLPlugin implements IServicePlugin{
 
-	private static Object objLock 		= new Object();
-	private static ObjMLApi objMlApi 	= null;
-	private static List<String> listMlPluginClassName = null;
+	private static Object objLock 			= new Object();
+	private static ObjMLServApi objMLServ 	= null;
 
 	@Override
 	public HttpResp handleException(RESTServiceReq req, HttpResp res, RESTApiException ex) throws RESTApiException {
@@ -39,10 +34,8 @@ public class ObjMLPlugin implements IServicePlugin{
 		{
 			if("true".equalsIgnoreCase(httpReq.getParameter("reload")))
 			{
-				objMlApi.reScanPlugins();
+				objMLServ.reScanPlugin();
 			}
-			
-			listMlPluginClassName = objMlApi.listPluginClassNames();
 			
 		}
 		
@@ -54,16 +47,17 @@ public class ObjMLPlugin implements IServicePlugin{
 		
 		if("list".equalsIgnoreCase(sAction))
 		{
-			if(listMlPluginClassName!=null)
+			List<String> listPlugins = objMLServ.getListOfPlugins();
+			if(listPlugins!=null)
 			{
 				JSONArray jArrMLNames = new JSONArray();
-				for(String sMLName : listMlPluginClassName)
+				for(String sMLName : listPlugins)
 				{
 					jArrMLNames.put(sMLName);
 				}
 				
 				JSONObject jsonMlNames = new JSONObject();
-				jsonMlNames.put("objmlPlugins", jArrMLNames);
+				jsonMlNames.put("plugins", jArrMLNames);
 				res.setContent_data(jsonMlNames.toString());
 			}
 		}
@@ -74,7 +68,7 @@ public class ObjMLPlugin implements IServicePlugin{
 			String sObjMlClassName = httpReq.getParameter("className");
 			if(sObjMlClassName!=null)
 			{
-				ObjDetBasePlugin plugin = objMlApi.initPlugin(sObjMlClassName);
+				ObjDetBasePlugin plugin = objMLServ.initPlugin(sObjMlClassName);
 				if(plugin!=null)
 				{
 					jsonInfo.put("name", plugin.getPluginName());
@@ -111,75 +105,19 @@ public class ObjMLPlugin implements IServicePlugin{
 	
 	private boolean init(RESTServiceReq req)
 	{
-		if(objMlApi==null)
+		if(objMLServ==null)
 		{
-			OpenCvUtil.initOpenCV();
 			synchronized (objLock) {
-				if(objMlApi==null)
+				if(objMLServ==null)
 				{
-			    	listMlPluginClassName = null;
-			    	
 			    	String sPluginFolder = req.getConfigMap().get("objml.config.plugins.folder");
-			    	if(sPluginFolder==null)
-			    		sPluginFolder = ".";
-			    		
-			    	File jarFolder = new File(sPluginFolder);
-			    	File jarFiles[] = getPluginJarsPath(jarFolder);
-			    	
-			    	MLPluginMgr objmlMgr = new MLPluginMgr();
-			    	objmlMgr.setCustomPluginConfigKey(
-							getCustomPluginConfigKey("objml-plugin.properties", "objml."));
-			    	objmlMgr.addPluginPaths(jarFiles);
-			    	
-			    	objMlApi = new ObjMLApi(objmlMgr);
+			    	objMLServ = new ObjMLServApi(sPluginFolder);
 				}
 			}
 		}
-		
-		return (objMlApi!=null);
+		return (objMLServ!=null);
 	}
 	
 	
-	protected static MLPluginConfigKey getCustomPluginConfigKey(String aPropFileName, String aPropPrefix)
-	{
-		MLPluginConfigKey customPluginConfig = new MLPluginConfigKey();
-    	
-		/*** Custom configuration for properties ***/
-    	customPluginConfig.setProp_filename(aPropFileName);
-    	customPluginConfig.setPropkey_prefix(aPropPrefix);
-    	
-    	return customPluginConfig;
-	}
-
-	protected static File[] getPluginJarsPath(File aPluginFolder)
-	{
-		File[] fPluginJars = new File[]{};
-		
-		if(aPluginFolder!=null && aPluginFolder.isDirectory())
-		{
-			fPluginJars =  FileUtil.getFilesWithExtensions(aPluginFolder, new String[]{".jar",".zip"});
-    	
-		}
-    	System.out.println();
-    	System.out.println("plugin bundles discovered : "+fPluginJars.length);
-    	
-    	return fPluginJars;
-	}
-	
-	protected static File[] getTestImageFiles(String aFolder, String[] aImgExts)
-	{
-		File folderImages = new File(aFolder);
-		
-		if(folderImages.isDirectory())
-		{
-			return FileUtil.getFilesWithExtensions(
-					folderImages, 
-					aImgExts);
-		}
-		else
-		{
-			return new File[] {};
-		}
-	}
 
 }
