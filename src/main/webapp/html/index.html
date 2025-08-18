@@ -1,1 +1,49 @@
-Testing
+<html>
+<head>
+	<script type="text/javascript">
+		async function listPlugins() {
+			const selectEl = document.getElementById("pluginSelect");
+			selectEl.disabled = true;
+			selectEl.innerHTML = `<option>Loading plugins…</option>`;
+		      
+			try {
+		        const res = await fetch("../objml/list", {
+					method: "GET",
+			          headers: {
+			              "Accept": "application/json"
+			            }
+		        });
+
+		        if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`);
+		        const data = await res.json();
+
+		        console.log(data);
+		        
+		        const plugins = Array.isArray(data.plugins) ? data.plugins : [];
+		        if (plugins.length === 0) {
+		          selectEl.innerHTML = `<option disabled>No plugins found</option>`;
+		          throw new Error("Response had no plugins");
+		        }
+
+		        // Build options
+		        selectEl.innerHTML = "";
+		        selectEl.appendChild(document.createElement("option"));
+		        for (const plugin of plugins) {
+		          const opt = document.createElement("option");
+		          opt.value = plugin;
+		          opt.textContent = plugin;
+		          selectEl.appendChild(opt);
+		        }
+		        selectEl.disabled = false;
+		      } catch (err) {
+		        selectEl.innerHTML = `<option disabled>Error loading plugins</option>`;
+		        selectEl.disabled = true;
+		      }
+		}
+	 
+	</script>
+</head>
+<body onload="listPlugins()">
+	Available plugins : <select id="pluginSelect" disabled><option></option></select>
+</body>
+</html>

@@ -65,6 +65,7 @@ public class ObjMLPlugin implements IServicePlugin{
 				jsonMlNames.put("plugins", jArrMLNames);
 				res.setContent_type_as_Json();
 				res.setContent_data(jsonMlNames.toString());
+				res.setHttp_status(200);
 			}
 		}
 		else if("detect".equalsIgnoreCase(sAction))
@@ -86,8 +87,6 @@ public class ObjMLPlugin implements IServicePlugin{
 				if(matImg!=null)
 					inputDetect.setInput_image(matImg);
 			}
-			
-			
 			
 			JSONObject jsonDetect = new JSONObject();
 			
@@ -117,6 +116,7 @@ public class ObjMLPlugin implements IServicePlugin{
 			
 			res.setContent_type_as_Json();
 			res.setContent_data(jsonDetect.toString());
+			res.setHttp_status(200);
 			
 		}
 		else if("info".equalsIgnoreCase(sAction))
@@ -155,6 +155,7 @@ public class ObjMLPlugin implements IServicePlugin{
 			
 			res.setContent_type_as_Json();
 			res.setContent_data(jsonInfo.toString());
+			res.setHttp_status(200);
 		}
 		
 		return res;
