@@ -8,7 +8,6 @@ import java.util.Map;
 import hl.common.FileUtil;
 import hl.objml2.api.ObjMLApi;
 import hl.objml2.api.ObjMLInputParam;
-import hl.objml2.plugin.IObjDetectionPlugin;
 import hl.objml2.plugin.MLPluginConfigKey;
 import hl.objml2.plugin.MLPluginFrameOutput;
 import hl.objml2.plugin.MLPluginMgr;

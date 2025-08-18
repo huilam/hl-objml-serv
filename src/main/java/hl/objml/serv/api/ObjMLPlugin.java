@@ -37,7 +37,7 @@ public class ObjMLPlugin implements IServicePlugin{
 		
 		if(init(req))
 		{
-			if("true".equalsIgnoreCase(httpReq.getParameter("reload")))
+			if("true".equalsIgnoreCase(httpReq.getParameter("rescan")))
 			{
 				objMLServ.reScanPlugin();
 			}
@@ -98,17 +98,20 @@ public class ObjMLPlugin implements IServicePlugin{
 				FrameDetectedObj detections = outputDetect.getFrameDetectedObj();
 				if(detections.getAllDetectedObjs().size()>0)
 				{
-					Mat matOutput = outputDetect.getAnnotatedFrameImage();
-					if(matOutput!=null)
+					if("true".equalsIgnoreCase(httpReq.getParameter("image")))
 					{
-						String sJpgBase64 = OpenCvUtil.mat2base64Img(matOutput, "jpg");
-						jsonDetect.put("image.jpg", sJpgBase64);
+						Mat matOutput = outputDetect.getAnnotatedFrameImage();
+						if(matOutput!=null)
+						{
+							String sJpgBase64 = OpenCvUtil.mat2base64Img(matOutput, "jpg");
+							jsonDetect.put("image.jpg", sJpgBase64);
+						}
 					}
 				}
 				
-				
 				jsonDetect.put("detections", detections.toJson());
 				jsonDetect.put("meta", outputDetect.getFrameDetectionMeta().toJson());
+				jsonDetect.put("errors", outputDetect.getErrorsJson());
 			}
 			
 			
