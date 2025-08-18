@@ -27,7 +27,10 @@
 
 		        // Build options
 		        selectEl.innerHTML = "";
-		        selectEl.appendChild(document.createElement("option"));
+		        
+		        opt = document.createElement("option");
+		        opt.textContent = " < make your selection >";
+		        selectEl.appendChild(opt);
 		        for (const plugin of plugins) {
 		          const opt = document.createElement("option");
 		          opt.value = plugin;
