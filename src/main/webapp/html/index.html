@@ -2,6 +2,8 @@
 <head>
 	<script type="text/javascript">
 	
+		var contextRoot = window.location.pathname.substring(0, window.location.pathname.indexOf("/",2));
+		
 		async function listOption(apiUrl, jsonAttrName, htmlElId) {
 			const selectEl = document.getElementById(htmlElId);
 			selectEl.disabled = true;
@@ -44,13 +46,12 @@
 		      }
 		}
 	
-	
 		function listPlugins() {
-			listOption("../objml?rescan=true", "plugins", "pluginSelect");
+			listOption(contextRoot+"/objml", "plugins", "pluginSelect");
 		}
 		
 		function listTestImages() {
-			listOption("../image", "imageFileNames", "imageSelect");
+			listOption(contextRoot+"/image", "imageFileNames", "imageSelect");
 		}
 		
 		function previewImage() {
@@ -63,23 +64,24 @@
 			
 			if(selImageFileName!="")
 			{
-				imgEl.src ="../image/"+selImageFileName+"?return=image";
+				imgEl.src = contextRoot+"/image/"+selImageFileName+"?return=image";
+				imgEl.alt = selImageFileName;
 			}
 			
 		}
 		
 		function detectImage() {
-			const imgEl = document.getElementById("detectPreview");
-			imgEl.src=null;
-			imgEl.alt=null;
-			
 			var selImageFileName = document.getElementById("imageSelect").value;
 			var selPluginClassName = document.getElementById("pluginSelect").value;
 			
+			const imgEl = document.getElementById("detectPreview");
+			imgEl.src = null;
+			imgEl.alt = "perform detection ...";
+			
 			if(selImageFileName!= "" && selPluginClassName!= "")
 			{
-				imgEl.src ="../objml/plugin/"+selPluginClassName+"/detect/"+selImageFileName+"?return=image";
-				imgEl.alt = selImageFileName;
+				imgEl.src = contextRoot+"/objml/plugin/"+selPluginClassName+"/detect/"+selImageFileName+"?return=image";
+				imgEl.alt = selPluginClassName;
 			}
 			
 		}
