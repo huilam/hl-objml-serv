@@ -14,7 +14,7 @@ import hl.objml2.plugin.MLPluginMgr;
 import hl.objml2.plugin.ObjDetBasePlugin;
 import hl.opencv.util.OpenCvUtil;
 
-public class ObjMLServApi {
+public class ObjMLServ {
 
 	private String folderNativeLib 	= null;
 	private String folderPlugins 	= null;
@@ -23,7 +23,7 @@ public class ObjMLServApi {
 	private List<String> listMlPluginClassName = null;
 	private Map<String, ObjDetBasePlugin> mapObjDetPluginCache = new HashMap<>();
 	
-	public ObjMLServApi(String aNativeLibPath, String aPluginFolder)
+	public ObjMLServ(String aNativeLibPath, String aPluginFolder)
 	{
 		folderNativeLib = aNativeLibPath;
 		folderPlugins = aPluginFolder;
