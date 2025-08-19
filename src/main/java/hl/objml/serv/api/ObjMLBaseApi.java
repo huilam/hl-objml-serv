@@ -1,5 +1,9 @@
 package hl.objml.serv.api;
 
+import java.io.File;
+import java.io.FilenameFilter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.json.JSONObject;
@@ -68,6 +72,44 @@ public class ObjMLBaseApi implements IServicePlugin{
 			}
 		}
 		return (_objMLServ!=null);
+	}
+	
+	protected String constructTestImageFileName(String aImageFileName)
+	{
+		if(aImageFileName!=null && aImageFileName.trim().length()>0)
+		{
+			if((aImageFileName.indexOf("/")==-1)||(aImageFileName.indexOf("\\")==-1))
+			{
+				String sTestImgFolder = _testImageFolder;
+				if(sTestImgFolder!=null)
+					return sTestImgFolder+"/"+aImageFileName;
+			}
+		}
+		return aImageFileName;
+	}
+	
+	protected List<String> listTestImageFileNames()
+	{
+		List<String> list = new ArrayList<String>();
+		for(File f : listTestImageFiles())
+		{
+			list.add(f.getName());
+		}
+		return list;
+	}
+	
+	protected File[] listTestImageFiles()
+	{	
+		File folderTestImg = new File(_testImageFolder);
+		folderTestImg.list(new FilenameFilter() {
+			@Override
+			public boolean accept(File dir, String name) {
+				// TODO Auto-generated method stub
+				String lname = name.toLowerCase();
+				return (lname.endsWith(".png") || lname.endsWith(".jpg") || lname.endsWith(".jpeg"));
+			}
+		});
+		return folderTestImg.listFiles();
 	}
 	
 	//==================================================

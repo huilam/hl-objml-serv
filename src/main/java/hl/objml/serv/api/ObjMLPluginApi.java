@@ -53,14 +53,7 @@ public class ObjMLPluginApi extends ObjMLBaseApi {
 		else if("detect".equalsIgnoreCase(aAction))
 		{	
 			String sObjMlClassName 	= httpReq.getParameter("className");
-			String sTestImgFileName = httpReq.getParameter("imageFileName");
-			
-			if((sTestImgFileName.indexOf("/")==-1)||(sTestImgFileName.indexOf("\\")==-1))
-			{
-				String sTestImgFolder = _testImageFolder;
-				if(sTestImgFolder!=null)
-					sTestImgFileName = sTestImgFolder+"/"+sTestImgFileName;
-			}
+			String sTestImgFileName = constructTestImageFileName(httpReq.getParameter("imageFileName"));
 			
 			ObjMLInputParam inputDetect = new ObjMLInputParam();
 			
