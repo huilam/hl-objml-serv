@@ -75,7 +75,7 @@ public class ObjMLPluginApi extends ObjMLBaseApi {
 					matOutputImg = outputDetect.getAnnotatedFrameImage();
 					
 					boolean isReturnOnlyImage = "image".equalsIgnoreCase(httpReq.getParameter("return"));
-					if(isReturnOnlyImage)
+					if(isReturnOnlyImage && matOutputImg!=null)
 					{
 						try {
 							byte[] byteArray = OpenCvUtil.mat2Bytes(matOutputImg, "jpg");
