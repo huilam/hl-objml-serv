@@ -1,13 +1,14 @@
 <html>
 <head>
 	<script type="text/javascript">
-		async function listPlugins() {
-			const selectEl = document.getElementById("pluginSelect");
+	
+		async function listOption(apiUrl, jsonAttrName, htmlElId) {
+			const selectEl = document.getElementById(htmlElId);
 			selectEl.disabled = true;
 			selectEl.innerHTML = `<option>Loading plugins…</option>`;
-		      
+			
 			try {
-		        const res = await fetch("../objml/list", {
+		        const res = await fetch(apiUrl, {
 					method: "GET",
 			          headers: {
 			              "Accept": "application/json"
@@ -16,25 +17,24 @@
 
 		        if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`);
 		        const data = await res.json();
-
-		        console.log(data);
 		        
-		        const plugins = Array.isArray(data.plugins) ? data.plugins : [];
-		        if (plugins.length === 0) {
+		        const items = Array.isArray(data[jsonAttrName]) ? data[jsonAttrName]: [];
+		        if (items.length === 0) {
 		          selectEl.innerHTML = `<option disabled>No plugins found</option>`;
-		          throw new Error("Response had no plugins");
+		          throw new Error("Response had no "+jsonAttrName);
 		        }
 
 		        // Build options
 		        selectEl.innerHTML = "";
 		        
 		        opt = document.createElement("option");
+		        opt.value = "";
 		        opt.textContent = " < make your selection >";
 		        selectEl.appendChild(opt);
-		        for (const plugin of plugins) {
+		        for (const item of items) {
 		          const opt = document.createElement("option");
-		          opt.value = plugin;
-		          opt.textContent = plugin;
+		          opt.value = item;
+		          opt.textContent = item;
 		          selectEl.appendChild(opt);
 		        }
 		        selectEl.disabled = false;
@@ -43,10 +43,65 @@
 		        selectEl.disabled = true;
 		      }
 		}
+	
+	
+		function listPlugins() {
+			listOption("../objml", "plugins", "pluginSelect");
+		}
+		
+		function listTestImages() {
+			listOption("../image", "imageFileNames", "imageSelect");
+		}
+		
+		function previewImage() {
+			const imgEl = document.getElementById("imgPreview");
+			imgEl.src=null;
+			imgEl.alt=null;
+			
+			var selImageFileName = document.getElementById("imageSelect").value;
+			imgEl.alt = selImageFileName;
+			
+			if(selImageFileName!="")
+			{
+				imgEl.src ="../image/"+selImageFileName+"?return=image";
+			}
+			
+		}
+		
+		function detectImage() {
+			const imgEl = document.getElementById("detectPreview");
+			imgEl.src=null;
+			imgEl.alt=null;
+			
+			var selImageFileName = document.getElementById("imageSelect").value;
+			var selPluginClassName = document.getElementById("pluginSelect").value;
+			
+			if(selImageFileName!= "" && selPluginClassName!= "")
+			{
+				imgEl.src ="../objml/plugin/"+selPluginClassName+"/detect/"+selImageFileName+"?return=image";
+				imgEl.alt = selImageFileName;
+			}
+			
+		}
+		
+		function init()
+		{
+			listPlugins();
+			listTestImages();
+		}
 	 
 	</script>
 </head>
-<body onload="listPlugins()">
-	Available plugins : <select id="pluginSelect" disabled><option></option></select>
+<body onload="init()">
+	<BR><BR>
+	Test Images : <select id="imageSelect" disabled onchange="previewImage()"><option></option></select>
+	<BR><BR>
+	<img id="imgPreview" width=300 height=300/>
+	
+	<BR><BR><BR>
+	Available ObjML Plugins :
+	<BR><select id="pluginSelect" onchange="detectImage()" disabled><option></option></select>
+	<BR><BR>
+	<img id="detectPreview" width=300 height=300/>
 </body>
 </html>
