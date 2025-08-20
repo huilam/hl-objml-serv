@@ -63,9 +63,13 @@ public class ObjMLBaseApi implements IServicePlugin{
 				if(_objMLServ==null)
 				{
 					Map<String, String> mapConfig = req.getConfigMap();
-			    	_nativeLibFolder 	= mapConfig.getOrDefault("objml.config.native-lib.folder", null);
-			    	_pluginFolder 		= mapConfig.getOrDefault("objml.config.plugins.folder", ".");
-			    	_testImageFolder 	= mapConfig.getOrDefault("objml.config.test-image.folder", ".");
+					String _configFolder 	= mapConfig.getOrDefault("objml.config.folder", "");
+					if(_configFolder.length()>0 && !_configFolder.endsWith("/"))
+						_configFolder += "/";
+					
+			    	_nativeLibFolder 	= _configFolder + mapConfig.getOrDefault("objml.config.native-lib.folder", ".");
+			    	_pluginFolder 		= _configFolder + mapConfig.getOrDefault("objml.config.plugins.folder", ".");
+			    	_testImageFolder 	= _configFolder + mapConfig.getOrDefault("objml.config.test-image.folder", ".");
 			    	
 			    	_objMLServ = new ObjMLServ(_nativeLibFolder, _pluginFolder);
 				}
@@ -101,15 +105,23 @@ public class ObjMLBaseApi implements IServicePlugin{
 	protected File[] listTestImageFiles()
 	{	
 		File folderTestImg = new File(_testImageFolder);
-		folderTestImg.list(new FilenameFilter() {
-			@Override
-			public boolean accept(File dir, String name) {
-				// TODO Auto-generated method stub
-				String lname = name.toLowerCase();
-				return (lname.endsWith(".png") || lname.endsWith(".jpg") || lname.endsWith(".jpeg"));
-			}
-		});
-		return folderTestImg.listFiles();
+		if(folderTestImg.isDirectory())
+		{
+			folderTestImg.list(new FilenameFilter() {
+				@Override
+				public boolean accept(File dir, String name) {
+					// TODO Auto-generated method stub
+					String lname = name.toLowerCase();
+					return (lname.endsWith(".png") || lname.endsWith(".jpg") || lname.endsWith(".jpeg"));
+				}
+			});
+			return folderTestImg.listFiles();
+		}
+		else
+		{
+			System.err.println("Image files not found at "+_testImageFolder);
+			return new File[]{};
+		}
 	}
 	
 	//==================================================

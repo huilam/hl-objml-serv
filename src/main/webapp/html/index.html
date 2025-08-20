@@ -1,9 +1,8 @@
 <html>
 <head>
 	<script type="text/javascript">
+		var _ContextRoot = window.location.pathname.substring(0, window.location.pathname.indexOf("/",2));
 	
-		var contextRoot = window.location.pathname.substring(0, window.location.pathname.indexOf("/",2));
-		
 		async function listOption(apiUrl, jsonAttrName, htmlElId) {
 			const selectEl = document.getElementById(htmlElId);
 			selectEl.disabled = true;
@@ -31,7 +30,7 @@
 		        
 		        opt = document.createElement("option");
 		        opt.value = "";
-		        opt.textContent = " < make your selection >";
+		        opt.textContent = " --- selection(s) : "+items.length+" --- ";
 		        selectEl.appendChild(opt);
 		        for (const item of items) {
 		          const opt = document.createElement("option");
@@ -47,11 +46,11 @@
 		}
 	
 		function listPlugins() {
-			listOption(contextRoot+"/objml", "plugins", "pluginSelect");
+			listOption(_ContextRoot+"/objml", "plugins", "pluginSelect");
 		}
 		
 		function listTestImages() {
-			listOption(contextRoot+"/image", "imageFileNames", "imageSelect");
+			listOption(_ContextRoot+"/image", "imageFileNames", "imageSelect");
 		}
 		
 		function previewImage() {
@@ -64,7 +63,7 @@
 			
 			if(selImageFileName!="")
 			{
-				imgEl.src = contextRoot+"/image/"+selImageFileName+"?return=image";
+				imgEl.src = _ContextRoot+"/image/"+selImageFileName+"?return=image";
 				imgEl.alt = selImageFileName;
 			}
 			
@@ -80,7 +79,7 @@
 			
 			if(selImageFileName!= "" && selPluginClassName!= "")
 			{
-				imgEl.src = contextRoot+"/objml/plugin/"+selPluginClassName+"/detect/"+selImageFileName+"?return=image";
+				imgEl.src = _ContextRoot+"/objml/plugin/"+selPluginClassName+"/detect/"+selImageFileName+"?return=image";
 				imgEl.alt = selPluginClassName;
 			}
 			
