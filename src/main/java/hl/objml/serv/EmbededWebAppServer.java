@@ -7,7 +7,8 @@ import org.apache.catalina.startup.Tomcat;
 
 public class EmbededWebAppServer {
 	
-	private static Tomcat tomcat = null;;
+	private static Tomcat tomcat = null;
+	private static File webappHome = null;
 
 	public static void run(String aWebAppContextRoot, int aWebAppPort) throws LifecycleException
 	{
@@ -18,8 +19,11 @@ public class EmbededWebAppServer {
 	        // Create the default connector (required in embedded use)
 	        tomcat.getConnector();
 	
+	        File folderWebApp = new File("src/main/webapp");
+	        if(webappHome!=null && webappHome.isDirectory())
+	        	folderWebApp = webappHome;
 	        // Point to your exploded webapp directory (must contain WEB-INF/web.xml)
-	        String docBase = new File("src/main/webapp").getAbsolutePath();
+	        String docBase = folderWebApp.getAbsolutePath();
 	
 	        // Context path of your app (e.g., http://localhost:8080/hl-objml-serv/)
 	        Context ctx = tomcat.addWebapp(aWebAppContextRoot, docBase);
