@@ -16,7 +16,7 @@ import hl.opencv.util.OpenCvUtil;
 
 public class ObjMLServ {
 
-	private String folderNativeLib 	= null;
+	private File folderNativeLib 	= null;
 	private String folderPlugins 	= null;
 	
 	private ObjMLApi objMlApi 	= null;
@@ -25,13 +25,23 @@ public class ObjMLServ {
 	
 	public ObjMLServ(String aNativeLibPath, String aPluginFolder)
 	{
-		folderNativeLib = aNativeLibPath;
-		folderPlugins = aPluginFolder;
+		if(aNativeLibPath!=null)
+		{
+			this.folderNativeLib = new File(aNativeLibPath);
+			OpenCvUtil.initOpenCVfromPath(this.folderNativeLib);
+		}
+		else 
+		{
+			this.folderNativeLib = null;
+			OpenCvUtil.initOpenCV();
+		}
 		
-		OpenCvUtil.initOpenCV(folderNativeLib);
 		
-		if(folderPlugins==null || folderPlugins.trim().equalsIgnoreCase(""))
-			folderPlugins = ".";
+		
+		this.folderPlugins = aPluginFolder;
+		
+		if(this.folderPlugins==null || this.folderPlugins.trim().equalsIgnoreCase(""))
+			this.folderPlugins = ".";
 		
 		reScanPlugin();
 	}
