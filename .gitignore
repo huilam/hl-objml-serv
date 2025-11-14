@@ -15,3 +15,9 @@ hs_err_pid*
 replay_pid*
 /build/
 .DS_Store
+
+#
+hl/**
+src/main/resources/plugins/*.dir
+src/main/resources/plugins/*.jar
+src/main/resources/test-images/*.*
