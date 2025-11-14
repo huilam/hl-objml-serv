@@ -108,7 +108,7 @@ public class ObjMLPluginApi extends ObjMLBaseApi {
 						if(matOutputImg!=null)
 						{
 							String sJpgBase64 = OpenCvUtil.mat2base64Img(matOutputImg, "jpg");
-							jsonDetect.put("image.jpg", sJpgBase64);
+							jsonDetect.put("imagejpg", sJpgBase64);
 						}
 					}
 				}

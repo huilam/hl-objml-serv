@@ -1,8 +1,40 @@
 <html>
 <head>
+	<style>
+	  .collapsible {
+	    cursor: pointer;
+	  }
+	  .collapsed > .content {
+	    display: none;
+	  }
+	</style>
 	<script type="text/javascript">
 		var _ContextRoot = window.location.pathname.substring(0, window.location.pathname.indexOf("/",2));
-	
+		  
+		async function fetchDetectionDetail(apiUrl) {
+			
+			try {
+		        const res = await fetch(apiUrl, {
+					method: "GET",
+			          headers: {
+			              "Accept": "application/json"
+			            }
+		        });
+
+		        if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`);
+		        const data = await res.json();
+		        
+		        var jpgbase64 = JSON.parse(JSON.stringify(data.imagejpg));
+		        const imgEl = document.getElementById("detectPreview");
+		        imgEl.src="data:image/jpg;base64,"+jpgbase64;
+		        
+		        const detailEl = document.getElementById("detectionDetail");
+		        detailEl.innerHTML = JSON.stringify(data.detections.frame_detections,null,2);
+
+		      } catch (err) {
+		      }
+		}
+		
 		async function listOption(apiUrl, jsonAttrName, htmlElId) {
 			const selectEl = document.getElementById(htmlElId);
 			selectEl.disabled = true;
@@ -44,7 +76,7 @@
 		        selectEl.disabled = true;
 		      }
 		}
-	
+		
 		function listPlugins() {
 			listOption(_ContextRoot+"/objml", "plugins", "pluginSelect");
 		}
@@ -79,7 +111,8 @@
 			
 			if(selImageFileName!= "" && selPluginClassName!= "")
 			{
-				imgEl.src = _ContextRoot+"/objml/plugin/"+selPluginClassName+"/detect/"+selImageFileName+"?return=image";
+				fetchDetectionDetail(_ContextRoot+"/objml/plugin/"+selPluginClassName+"/detect/"+selImageFileName+"?imageBase64=true");
+				//imgEl.src = _ContextRoot+"/objml/plugin/"+selPluginClassName+"/detect/"+selImageFileName+"?return=image";
 				imgEl.alt = selPluginClassName;
 			}
 			
@@ -91,6 +124,7 @@
 			listTestImages();
 		}
 	 
+		
 	</script>
 </head>
 <body onload="init()">
@@ -103,6 +137,16 @@
 	Available ObjML Plugins :
 	<BR><select id="pluginSelect" onchange="detectImage()" disabled><option></option></select>
 	<BR><BR>
-	<img id="detectPreview"/>
+	<table>
+		<tr>
+			<td style="vertical-align: top;">
+				<img id="detectPreview"/>
+			</td>
+			<td style="vertical-align: top;">
+				<span id="detectionDetail"></span>
+			</td>
+		</tr>
+	</table>
+	
 </body>
 </html>
