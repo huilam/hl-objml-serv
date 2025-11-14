@@ -19,7 +19,9 @@ A demo web app that demonstrates how different types of machine learning detecti
 <br><br>
 
 **WebUI Preview**
-
+<br><br>
 ![image](samples/hl-objml-webui.jpg)<br>
-![image](samples/coco2017-id73172-yolo11.jpg)<br>
+![image](samples/coco2017-id73172-openpose.jpg)&nbsp;![image](samples/coco2017-id73172-yolo11.jpg)&nbsp;![image](samples/coco2017-id73172-pphumanseg.jpg)<br>
+
+
 
