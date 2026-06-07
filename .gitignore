@@ -14,10 +14,10 @@
 hs_err_pid*
 replay_pid*
 /build/
+/src/main/webapp/WEB-INF/classes
 .DS_Store
 
 #
 hl/**
 src/main/resources/plugins/*.dir
-src/main/resources/plugins/*.jar
 src/main/resources/test-images/*.*
