@@ -11,9 +11,13 @@
 	<script type="text/javascript">
 		var _ContextRoot = window.location.pathname.substring(0, window.location.pathname.indexOf("/",2));
 		  
+		
 		async function fetchDetectionDetail(apiUrl) {
 			
 			try {
+		        const imgEl = document.getElementById("detectPreview");
+		        imgEl.src = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
+
 		        const res = await fetch(apiUrl, {
 					method: "GET",
 			          headers: {
@@ -25,8 +29,9 @@
 		        const data = await res.json();
 		        
 		        var jpgbase64 = JSON.parse(JSON.stringify(data.imagejpg));
-		        const imgEl = document.getElementById("detectPreview");
-		        imgEl.src="data:image/jpg;base64,"+jpgbase64;
+		        
+		        if(jpgbase64!=null)
+		        	imgEl.src="data:image/jpg;base64,"+jpgbase64;
 		        
 		        const detailEl = document.getElementById("detectionDetail");
 		        detailEl.innerHTML = JSON.stringify(data.detections.frame_detections,null,2);
@@ -66,7 +71,7 @@
 		        selectEl.appendChild(opt);
 		        for (const item of items) {
 		          const opt = document.createElement("option");
-		          opt.value = item;
+		          opt.value = encodeURIComponent(item);
 		          opt.textContent = item;
 		          selectEl.appendChild(opt);
 		        }
@@ -90,7 +95,7 @@
 			imgEl.src=null;
 			imgEl.alt=null;
 			
-			var selImageFileName = document.getElementById("imageSelect").value;
+			var selImageFileName = encodeURIComponent(document.getElementById("imageSelect").value);
 			imgEl.alt = selImageFileName;
 			
 			if(selImageFileName!="")
@@ -102,11 +107,12 @@
 		}
 		
 		function detectImage() {
-			var selImageFileName = document.getElementById("imageSelect").value;
+			var selImageFileName = encodeURIComponent(document.getElementById("imageSelect").value);
 			var selPluginClassName = document.getElementById("pluginSelect").value;
 			
 			const imgEl = document.getElementById("detectPreview");
-			imgEl.src = null;
+			//imgEl.src = "";
+			imgEl.removeAttribute("src");
 			imgEl.alt = "perform detection ...";
 			
 			if(selImageFileName!= "" && selPluginClassName!= "")

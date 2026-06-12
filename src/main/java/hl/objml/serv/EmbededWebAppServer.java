@@ -17,7 +17,6 @@ public class EmbededWebAppServer {
 	{
 		try {
 	    	tomcat = new Tomcat();
-	        tomcat.setPort(aWebAppPort);
 	
 	        // Create the default connector (required in embedded use)
 	        tomcat.getConnector();
@@ -54,8 +53,11 @@ public class EmbededWebAppServer {
 	        // 4. Apply the modified resources configuration to the context
 	        ctx.setResources(resources);
 	
+	        tomcat.setPort(aWebAppPort);
 	        tomcat.start();
+	        
 	        tomcat.getServer().await();
+	        
 		}finally
 		{
 			if(tomcat!=null)
