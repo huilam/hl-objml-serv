@@ -126,7 +126,8 @@
 			imgEl.removeAttribute("src");
 			imgEl.alt = "perform detection ...";
 			
-			if(selImageFileName!= "" && selPluginClassName!= "")
+			if(selImageFileName!= null && selImageFileName.trim().length>0
+				&& selPluginClassName!= null && selPluginClassName.trim().length>0)
 			{
 				fetchDetectionDetail(_ContextRoot+"/objml/plugin/"+selPluginClassName+"/detect/"+selImageFileName+"?imageBase64=true");
 				//imgEl.src = _ContextRoot+"/objml/plugin/"+selPluginClassName+"/detect/"+selImageFileName+"?return=image";
