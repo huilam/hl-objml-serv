@@ -15,8 +15,12 @@
 		async function fetchDetectionDetail(apiUrl) {
 			
 			try {
+				
 		        const imgEl = document.getElementById("detectPreview");
 		        imgEl.src = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
+		        
+		        const detailEl = document.getElementById("detectionDetail");
+		        detailEl.innerHTML = "";
 
 		        const res = await fetch(apiUrl, {
 					method: "GET",
@@ -33,7 +37,7 @@
 		        if(jpgbase64!=null)
 		        	imgEl.src="data:image/jpg;base64,"+jpgbase64;
 		        
-		        const detailEl = document.getElementById("detectionDetail");
+		       
 		        detailEl.innerHTML = JSON.stringify(data.detections.frame_detections,null,2);
 
 		      } catch (err) {
@@ -66,7 +70,7 @@
 		        selectEl.innerHTML = "";
 		        
 		        opt = document.createElement("option");
-		        opt.value = "";
+		        opt.value = null;
 		        opt.textContent = " --- selection(s) : "+items.length+" --- ";
 		        selectEl.appendChild(opt);
 		        for (const item of items) {
@@ -98,10 +102,17 @@
 			var selImageFileName = encodeURIComponent(document.getElementById("imageSelect").value);
 			imgEl.alt = selImageFileName;
 			
-			if(selImageFileName!="")
+			if(selImageFileName!=null && selImageFileName.trim().length>0)
 			{
 				imgEl.src = _ContextRoot+"/image/"+selImageFileName+"?return=image";
 				imgEl.alt = selImageFileName;
+			}
+			
+			//
+			var selPluginClassName = document.getElementById("pluginSelect").value;
+			if(selPluginClassName!=null && selPluginClassName.trim().length>0)
+			{
+				detectImage();
 			}
 			
 		}
